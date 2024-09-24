@@ -438,36 +438,50 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(width: 30),
-                      if (_selectedDate == null)
-                        Text(
-                          'Please select a date first',
+
+                // Display message if no slots available, otherwise show time slots
+                _selectedDate != null && availableTimeSlots.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        child: Text(
+                          "All Appointments are Completed for Today",
                           style: GoogleFonts.nunitoSans(
                             color: const Color(0xFF8391A1),
                             fontWeight: FontWeight.w500,
                             fontSize: 15,
                           ),
-                        )
-                      else
-                        for (var slot in availableTimeSlots)
-                          TimeContainer(
-                            time: slot['time'] ?? 'N/A',
-                            status: slot['status'] ?? 'Empty',
-                            isSelected: _selectedTime == (slot['time'] ?? ''),
-                            onTap: () =>
-                                _handleTimeSelected(slot['time'] ?? ''),
-                          ),
-                      const SizedBox(width: 15),
-                    ],
-                  ),
-                ),
-
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(width: 30),
+                            if (_selectedDate == null)
+                              Text(
+                                'Please select a date first',
+                                style: GoogleFonts.nunitoSans(
+                                  color: const Color(0xFF8391A1),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 15,
+                                ),
+                              )
+                            else
+                              for (var slot in availableTimeSlots)
+                                TimeContainer(
+                                  time: slot['time'] ?? 'N/A',
+                                  status: slot['status'] ?? 'Empty',
+                                  isSelected:
+                                      _selectedTime == (slot['time'] ?? ''),
+                                  onTap: () =>
+                                      _handleTimeSelected(slot['time'] ?? ''),
+                                ),
+                            const SizedBox(width: 15),
+                          ],
+                        ),
+                      ),
                 //! Description ------------------------------------------------
                 const SizedBox(height: 30),
                 Padding(
@@ -713,19 +727,49 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
           // Convert and add all timeslots to the list for sorting
           List<Map<String, dynamic>> timeSlotsList = [];
 
+          // Get current time
+          DateTime now = DateTime.now();
+
           slots.forEach((timeString, status) {
             if (timeString != 'openingTime' && timeString != 'closingTime') {
-              // Parse timeString to DateTime for sorting purposes
+              // Parse timeString to DateTime for comparison
               DateTime? parsedTime =
                   DateFormat('h:mm a').parse(timeString, true);
-              timeSlotsList.add({
-                'time': timeString, // Keep the original string to display later
-                'status': status ?? 'Empty',
-                'parsedTime':
-                    parsedTime, // Store the parsed DateTime for sorting
-              });
+
+              // If the selected date is today, filter out past time slots
+              if (_selectedDate!.day == now.day &&
+                  _selectedDate!.month == now.month &&
+                  _selectedDate!.year == now.year) {
+                if (parsedTime.isAfter(now)) {
+                  timeSlotsList.add({
+                    'time': timeString, // Keep the original string for display
+                    'status': status ?? 'Empty',
+                    'parsedTime': parsedTime, // Store for sorting
+                  });
+                }
+              } else {
+                // Add all time slots for other dates
+                timeSlotsList.add({
+                  'time': timeString,
+                  'status': status ?? 'Empty',
+                  'parsedTime': parsedTime,
+                });
+              }
             }
           });
+
+          // Parse the opening time and filter if it has passed
+          if (slots.containsKey('openingTime')) {
+            DateTime openingTime =
+                DateFormat('h:mm a').parse(slots['openingTime'], true);
+            if (!(_selectedDate!.day == now.day && openingTime.isBefore(now))) {
+              timeSlotsList.insert(0, {
+                'time': slots['openingTime'],
+                'status': 'Opening Time',
+                'parsedTime': openingTime,
+              });
+            }
+          }
 
           // Sort time slots by the parsed DateTime
           timeSlotsList
@@ -736,25 +780,6 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
                 'time': e['time'],
                 'status': e['status'],
               }));
-
-          // Ensure that openingTime and closingTime are added only once
-          if (slots.containsKey('openingTime') &&
-              !availableTimeSlots
-                  .any((slot) => slot['time'] == slots['openingTime'])) {
-            availableTimeSlots.insert(0, {
-              'time': slots['openingTime'],
-              'status': 'Opening Time',
-            });
-          }
-
-          // if (slots.containsKey('closingTime') &&
-          //     !availableTimeSlots
-          //         .any((slot) => slot['time'] == slots['closingTime'])) {
-          //   availableTimeSlots.add({
-          //     'time': slots['closingTime'],
-          //     'status': 'Closing Time',
-          //   });
-          // }
 
           setState(() {});
         }

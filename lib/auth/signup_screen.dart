@@ -371,7 +371,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 hintText: "Category",
                                 controller: _categoryController,
                                 options: const [
-                                  'General Practitioner',
+                                  'General',
                                   'Dentist',
                                   'Pediatrician',
                                   'Cardiologist',
