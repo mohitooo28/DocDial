@@ -724,58 +724,50 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
           // Clear previous slots
           availableTimeSlots.clear();
 
-          // Convert and add all timeslots to the list for sorting
+          // Get current date and time
+          DateTime now = DateTime.now();
+          DateTime selectedDayStart = DateTime(
+            _selectedDate!.year,
+            _selectedDate!.month,
+            _selectedDate!.day,
+          );
+
           List<Map<String, dynamic>> timeSlotsList = [];
 
-          // Get current time
-          DateTime now = DateTime.now();
-
+          // Iterate over all the time slots
           slots.forEach((timeString, status) {
             if (timeString != 'openingTime' && timeString != 'closingTime') {
-              // Parse timeString to DateTime for comparison
-              DateTime? parsedTime =
-                  DateFormat('h:mm a').parse(timeString, true);
+              // Parse time with selected date to get full DateTime object
+              DateTime? parsedTime = _parseTimeForSelectedDate(timeString);
 
-              // If the selected date is today, filter out past time slots
-              if (_selectedDate!.day == now.day &&
-                  _selectedDate!.month == now.month &&
-                  _selectedDate!.year == now.year) {
-                if (parsedTime.isAfter(now)) {
+              if (parsedTime != null) {
+                if (_selectedDate!.day == now.day &&
+                    _selectedDate!.month == now.month &&
+                    _selectedDate!.year == now.year) {
+                  // Only show future times for today
+                  if (parsedTime.isAfter(now)) {
+                    timeSlotsList.add({
+                      'time': timeString,
+                      'status': status ?? 'Empty',
+                      'parsedTime': parsedTime,
+                    });
+                  }
+                } else {
+                  // Add all time slots for future dates
                   timeSlotsList.add({
-                    'time': timeString, // Keep the original string for display
+                    'time': timeString,
                     'status': status ?? 'Empty',
-                    'parsedTime': parsedTime, // Store for sorting
+                    'parsedTime': parsedTime,
                   });
                 }
-              } else {
-                // Add all time slots for other dates
-                timeSlotsList.add({
-                  'time': timeString,
-                  'status': status ?? 'Empty',
-                  'parsedTime': parsedTime,
-                });
               }
             }
           });
 
-          // Parse the opening time and filter if it has passed
-          if (slots.containsKey('openingTime')) {
-            DateTime openingTime =
-                DateFormat('h:mm a').parse(slots['openingTime'], true);
-            if (!(_selectedDate!.day == now.day && openingTime.isBefore(now))) {
-              timeSlotsList.insert(0, {
-                'time': slots['openingTime'],
-                'status': 'Opening Time',
-                'parsedTime': openingTime,
-              });
-            }
-          }
-
-          // Sort time slots by the parsed DateTime
+          // Sort by time
           timeSlotsList
               .sort((a, b) => a['parsedTime'].compareTo(b['parsedTime']));
 
-          // Add sorted time slots to the availableTimeSlots list
           availableTimeSlots.addAll(timeSlotsList.map((e) => {
                 'time': e['time'],
                 'status': e['status'],
@@ -786,6 +778,26 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
       }
     } catch (e) {
       print("Error fetching time slots: $e");
+    }
+  }
+
+// Helper function to parse time for the selected date
+  DateTime? _parseTimeForSelectedDate(String timeString) {
+    try {
+      // Parse only the time part from the time string
+      DateTime timePart = DateFormat('h:mm a').parse(timeString, true);
+
+      // Combine it with the selected date
+      return DateTime(
+        _selectedDate!.year,
+        _selectedDate!.month,
+        _selectedDate!.day,
+        timePart.hour,
+        timePart.minute,
+      );
+    } catch (e) {
+      print("Error parsing time: $e");
+      return null;
     }
   }
 
