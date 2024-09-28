@@ -250,7 +250,7 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
                                 style: GoogleFonts.nunitoSans(
                                   color: const Color(0xFF909090),
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 20,
+                                  fontSize: 18,
                                 ),
                               ),
                               Text(
@@ -258,7 +258,7 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
                                 style: GoogleFonts.montserratAlternates(
                                   color: const Color(0xFF067B15),
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 30,
+                                  fontSize: 28,
                                 ),
                               ),
                             ],
@@ -394,36 +394,49 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
                       ),
                       const SizedBox(height: 10),
                       Expanded(
-                        child: ListView.builder(
-                          itemCount: _upcomingAppointments().length,
-                          itemBuilder: (context, index) {
-                            final booking = _upcomingAppointments()[index];
-                            return UpcomingAppointmentCard(
-                              date: booking.date,
-                              time: booking.time,
-                              username: booking.name,
-                              profileImageUrl: booking.profilePhoto,
-                              onCancel: () {
-                                HapticFeedback.heavyImpact();
-                                _updateRequestStatus(booking.id, "Accepted",
-                                    booking.date, booking.time);
-                              },
-                              msg: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ChatScreen(
-                                      doctorId: booking.receiver,
-                                      patientId: booking.sender,
-                                      patientName: booking.name,
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
+                        child: _upcomingAppointments().isNotEmpty
+                            ? ListView.builder(
+                                itemCount: _upcomingAppointments().length,
+                                itemBuilder: (context, index) {
+                                  final booking =
+                                      _upcomingAppointments()[index];
+                                  return UpcomingAppointmentCard(
+                                    date: booking.date,
+                                    time: booking.time,
+                                    username: booking.name,
+                                    profileImageUrl: booking.profilePhoto,
+                                    onCancel: () {
+                                      HapticFeedback.heavyImpact();
+                                      _updateRequestStatus(
+                                          booking.id,
+                                          "Accepted",
+                                          booking.date,
+                                          booking.time);
+                                    },
+                                    msg: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ChatScreen(
+                                            doctorId: booking.receiver,
+                                            patientId: booking.sender,
+                                            patientName: booking.name,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              )
+                            : Text(
+                                "No Upcoming Appointments",
+                                style: GoogleFonts.montserratAlternates(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey.shade500),
+                              ),
                       ),
+
                       //!-------------------------------------------------------
                     ],
                   ),

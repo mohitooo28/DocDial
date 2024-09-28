@@ -1,6 +1,6 @@
 import 'package:bottom_bar/bottom_bar.dart';
 import 'package:docdial/patient/patient_appointment_page.dart';
-import 'package:docdial/patient/profile_page.dart';
+import 'package:docdial/patient/patient_profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:docdial/patient/patient_home_page.dart';

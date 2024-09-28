@@ -23,7 +23,7 @@ class PatientHomePage extends StatefulWidget {
 
 class _PatientHomePageState extends State<PatientHomePage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance; 
 
   final TextEditingController _docSearch = TextEditingController();
 

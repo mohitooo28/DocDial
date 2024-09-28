@@ -34,6 +34,7 @@ dependencies:
   quickalert: ^1.1.0
   flutter_shakemywidget: ^1.0.5+1
   http: ^1.2.2
+  syncfusion_flutter_gauges: ^27.1.50
 
 dev_dependencies:
   flutter_test:

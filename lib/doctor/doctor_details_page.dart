@@ -726,11 +726,6 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
 
           // Get current date and time
           DateTime now = DateTime.now();
-          DateTime selectedDayStart = DateTime(
-            _selectedDate!.year,
-            _selectedDate!.month,
-            _selectedDate!.day,
-          );
 
           List<Map<String, dynamic>> timeSlotsList = [];
 
