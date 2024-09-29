@@ -1,6 +1,7 @@
 import 'package:bottom_bar/bottom_bar.dart';
 import 'package:docdial/patient/patient_appointment_page.dart';
 import 'package:docdial/patient/patient_profile_page.dart';
+import 'package:docdial/screens/global.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:docdial/patient/patient_home_page.dart';
@@ -23,6 +24,12 @@ class _PatientNavigationPageState extends State<PatientNavigationPage> {
     const ChatListPage(),
     const PatientProfilePage(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    Global.initializeUser();
+  }
 
   void _onItmTapped(int index) {
     setState(() {

@@ -38,7 +38,7 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
   DateTime? _selectedDate;
   late String _selectedTime = "";
   double rating = 0.0;
-  bool _hasText = false;
+  bool _hasText = false; 
   var maxLength = 70;
   var textLength = 0;
 

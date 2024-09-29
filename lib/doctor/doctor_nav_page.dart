@@ -1,5 +1,6 @@
 import 'package:bottom_bar/bottom_bar.dart';
 import 'package:docdial/doctor/doctor_appointment_page.dart';
+import 'package:docdial/screens/global.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:docdial/doctor/doctor_chatlist_page.dart';
@@ -17,6 +18,12 @@ class DoctorNavigationPage extends StatefulWidget {
 
 class _DoctorNavigationPageState extends State<DoctorNavigationPage> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    Global.initializeUser();
+  }
 
   final List<Widget> _children = [
     const DoctorHomePage(),

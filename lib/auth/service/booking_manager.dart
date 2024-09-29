@@ -16,7 +16,7 @@ class BookingManager {
       // Run the cleanup and creation in parallel for all doctors
       await Future.wait(doctorsSnapshot.docs.map((doctorDoc) {
         final doctorId = doctorDoc.id;
-        return _cleanupOldDatesAndAddNew(doctorId, todayString);
+        return _cleanupOldDatesAndAddNew(doctorId, now);
       }));
     } catch (e) {
       print("Error in backgroundTask: $e");
@@ -24,17 +24,18 @@ class BookingManager {
   }
 
   Future<void> _cleanupOldDatesAndAddNew(
-      String doctorId, String todayString) async {
+      String doctorId, DateTime today) async {
     print("Clean Old Dates Function");
 
-    int todayInt = int.parse(todayString);
-    int yesterdayInt = todayInt - 1;
-    int newDateInt = todayInt + 2;
+    // Use DateTime to handle transitions across months and years
+    DateTime yesterday = today.subtract(const Duration(days: 1));
+    DateTime newDate = today.add(const Duration(days: 2));
 
     WriteBatch batch = _firestore.batch();
 
     // Delete yesterday's document
-    String yesterdayString = yesterdayInt.toString();
+    String yesterdayString =
+        DateFormat('d').format(yesterday); // Handles month transition
     DocumentReference yesterdayDoc = _firestore
         .collection('Bookings')
         .doc(doctorId)
@@ -44,7 +45,8 @@ class BookingManager {
     batch.delete(yesterdayDoc);
 
     // Create a new date for the day after tomorrow if it doesn't exist
-    String newDateString = newDateInt.toString();
+    String newDateString =
+        DateFormat('d').format(newDate); // Handles month transition
     DocumentReference newDateDoc = _firestore
         .collection('Bookings')
         .doc(doctorId)
@@ -55,7 +57,7 @@ class BookingManager {
         .collection('Bookings')
         .doc(doctorId)
         .collection('dates')
-        .doc(todayString)
+        .doc(DateFormat('d').format(today))
         .get();
 
     if (!todayDoc.exists || todayDoc.data() == null) {

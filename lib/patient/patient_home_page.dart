@@ -23,7 +23,7 @@ class PatientHomePage extends StatefulWidget {
 
 class _PatientHomePageState extends State<PatientHomePage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance; 
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final TextEditingController _docSearch = TextEditingController();
 
@@ -171,160 +171,164 @@ class _PatientHomePageState extends State<PatientHomePage> {
           : GestureDetector(
               onTap: () => FocusScope.of(context).unfocus(),
               child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(30, 30, 0, 0),
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        //! Header -----------------------------------------------
-                        Padding(
-                          padding: const EdgeInsets.only(right: 30),
-                          child: Row(
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    greeting,
-                                    style: GoogleFonts.nunitoSans(
-                                      color: const Color(0xFF909090),
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 16,
-                                    ),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //! Header -----------------------------------------------
+                      const SizedBox(height: 30),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        child: Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  greeting,
+                                  style: GoogleFonts.nunitoSans(
+                                    color: const Color(0xFF909090),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
                                   ),
-                                  Text(
-                                    "${Global.username}", // Display the user's full name here
-                                    style: GoogleFonts.montserratAlternates(
-                                      color: const Color(0xFF067B15),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 25,
-                                    ),
+                                ),
+                                Text(
+                                  "${Global.username}", // Display the user's full name here
+                                  style: GoogleFonts.montserratAlternates(
+                                    color: const Color(0xFF067B15),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 25,
                                   ),
-                                ],
-                              ),
-                              const Spacer(),
-                              Stack(
-                                children: [
-                                  const Icon(
-                                    Iconsax.notification,
-                                    size: 32,
-                                    color: Color(0xFF909090),
-                                  ),
-                                  Positioned(
-                                    right: 1,
-                                    child: Container(
-                                        width: 18,
-                                        height: 18,
-                                        decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Color(0xFF19244D)),
-                                        child: Center(
-                                          child: Text(
-                                            (_latestAppointment == null)
-                                                ? '0'
-                                                : '1',
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 9,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        )),
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // * Search Bar ------------------------------------------
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              right: 30, top: 50, bottom: 30),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  spreadRadius: 1,
-                                  blurRadius: 2,
-                                  offset: const Offset(1, 3),
                                 ),
                               ],
                             ),
-                            child: TextFormField(
-                              textCapitalization: TextCapitalization.words,
-                              textInputAction: TextInputAction.search,
-                              controller: _docSearch,
-                              decoration: InputDecoration(
-                                  contentPadding: const EdgeInsets.only(
-                                      left: 20, top: 15, bottom: 15),
-                                  border: const OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  filled: true,
-                                  fillColor: Colors.grey[200],
-                                  hintText: 'Search doctor',
-                                  hintStyle: GoogleFonts.lato(
-                                    color: Colors.black26,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                  prefixIcon: const Icon(
-                                    Icons.search,
-                                    color: Color(0xFF8391A1),
-                                  )),
-                              style: GoogleFonts.lato(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                              ),
-                              onFieldSubmitted: (String value) {
-                                if (value.isNotEmpty) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          SearchResultPage(searchQuery: value),
-                                    ),
-                                  );
-                                  _docSearch.clear();
-                                }
-                              },
+                            const Spacer(),
+                            Stack(
+                              children: [
+                                const Icon(
+                                  Iconsax.notification,
+                                  size: 32,
+                                  color: Color(0xFF909090),
+                                ),
+                                Positioned(
+                                  right: 1,
+                                  child: Container(
+                                      width: 18,
+                                      height: 18,
+                                      decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Color(0xFF19244D)),
+                                      child: Center(
+                                        child: Text(
+                                          (_latestAppointment == null)
+                                              ? '0'
+                                              : '1',
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      )),
+                                )
+                              ],
                             ),
+                          ],
+                        ),
+                      ),
+
+                      // * Search Bar ------------------------------------------
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(30, 50, 30, 30),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                spreadRadius: 1,
+                                blurRadius: 2,
+                                offset: const Offset(1, 3),
+                              ),
+                            ],
+                          ),
+                          child: TextFormField(
+                            textCapitalization: TextCapitalization.words,
+                            textInputAction: TextInputAction.search,
+                            controller: _docSearch,
+                            decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.only(
+                                    left: 20, top: 15, bottom: 15),
+                                border: const OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                  borderSide: BorderSide.none,
+                                ),
+                                filled: true,
+                                fillColor: Colors.grey[200],
+                                hintText: 'Search doctor',
+                                hintStyle: GoogleFonts.lato(
+                                  color: Colors.black26,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                                prefixIcon: const Icon(
+                                  Icons.search,
+                                  color: Color(0xFF8391A1),
+                                )),
+                            style: GoogleFonts.lato(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                            ),
+                            onFieldSubmitted: (String value) {
+                              if (value.isNotEmpty) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        SearchResultPage(searchQuery: value),
+                                  ),
+                                );
+                                _docSearch.clear();
+                              }
+                            },
                           ),
                         ),
+                      ),
 
-                        // ! Doctor by Categories --------------------------------
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          child: Row(
-                            children: categories.map((category) {
-                              return CategoryButton(
-                                bgColor: category['bgColor'],
-                                assetLoc: category['assetLoc'],
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => DoctorByCategory(
-                                        category: category['category'],
+                      // ! Doctor by Categories --------------------------------
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 30),
+                            Row(
+                              children: categories.map((category) {
+                                return CategoryButton(
+                                  bgColor: category['bgColor'],
+                                  assetLoc: category['assetLoc'],
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DoctorByCategory(
+                                          category: category['category'],
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
-                              );
-                            }).toList(),
-                          ),
+                                    );
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ],
                         ),
+                      ),
 
-                        // * Your Appointment ------------------------------------
-                        const SizedBox(height: 45),
-                        Text(
+                      // * Your Appointment ------------------------------------
+                      Padding(
+                        padding: const EdgeInsets.only(left: 30, top: 45),
+                        child: Text(
                           "My Appointment",
                           style: GoogleFonts.nunitoSans(
                             color: Colors.black,
@@ -332,13 +336,20 @@ class _PatientHomePageState extends State<PatientHomePage> {
                             fontSize: 17,
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        _latestAppointment == null
-                            ? Text(
-                                'No appointments? That’s always a good thing!',
-                                style: GoogleFonts.nunitoSans(
-                                    fontSize: 15, fontWeight: FontWeight.w500))
-                            : MyAppointmentCard(
+                      ),
+                      const SizedBox(height: 10),
+                      _latestAppointment == null
+                          ? Padding(
+                              padding: const EdgeInsets.only(left: 30),
+                              child: Text(
+                                  'No appointments? That’s always a good thing!',
+                                  style: GoogleFonts.nunitoSans(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500)),
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.only(left: 30),
+                              child: MyAppointmentCard(
                                 docProfilePic:
                                     _latestAppointment!['doctorProfilePic'],
                                 docName: _latestAppointment!['doctorName'],
@@ -350,10 +361,12 @@ class _PatientHomePageState extends State<PatientHomePage> {
                                 time: _latestAppointment!['time'],
                                 onTap: () {},
                               ),
+                            ),
 
-                        // ! Top Rated Doctor ------------------------------------
-                        const SizedBox(height: 45),
-                        Text(
+                      // ! Top Rated Doctor ------------------------------------
+                      Padding(
+                        padding: const EdgeInsets.only(left: 30, top: 45),
+                        child: Text(
                           "Top Rated Doctors",
                           style: GoogleFonts.nunitoSans(
                             color: Colors.black,
@@ -361,43 +374,49 @@ class _PatientHomePageState extends State<PatientHomePage> {
                             fontSize: 17,
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          child: Row(
-                            children: List.generate(
-                              _doctors.length,
-                              (index) => TopDoctorCard(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => DoctorDetailPage(
-                                          doctor: _doctors[index]),
-                                    ),
-                                  );
-                                },
-                                doctor: _doctors[index],
+                      ),
+                      const SizedBox(height: 10),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 30),
+                            Row(
+                              children: List.generate(
+                                _doctors.length,
+                                (index) => TopDoctorCard(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DoctorDetailPage(
+                                            doctor: _doctors[index]),
+                                      ),
+                                    );
+                                  },
+                                  doctor: _doctors[index],
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                        const SizedBox(height: 60),
+                      ),
 
-                        //* Message =-------------------------------------------
-                        Text(
+                      //* Message =-------------------------------------------
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(30, 60, 30, 30),
+                        child: Text(
                           "Your Health, \nDeserves Attention",
                           style: GoogleFonts.doHyeon(
-                            color: Colors.grey.withOpacity(0.4),
+                            color: Colors.grey.withOpacity(0.3),
                             fontWeight: FontWeight.bold,
-                            letterSpacing: 2.0,
+                            letterSpacing: 2.3,
                             fontSize: 32,
                           ),
                         ),
-                        const SizedBox(height: 30),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),

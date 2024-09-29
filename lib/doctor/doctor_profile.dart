@@ -124,7 +124,7 @@ class _DoctorProfileState extends State<DoctorProfile> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          "Dr. ${doctorData['firstName'] ?? ''}${doctorData['lastName'] ?? ''}"
+                          "Dr. ${doctorData['firstName'] ?? ''} ${doctorData['lastName'] ?? ''}"
                               .trim(),
                           style: GoogleFonts.nunitoSans(
                             fontSize: 22,
