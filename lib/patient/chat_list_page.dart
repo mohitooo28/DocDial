@@ -87,7 +87,14 @@ class _ChatListPageState extends State<ChatListPage> {
       body: _isLoading
           ? const CustomCircularLoading()
           : _chatList.isEmpty
-              ? const Center(child: Text('No chats available'))
+              ? Center(
+                  child: Text(
+                  'No chats available',
+                  style: GoogleFonts.montserratAlternates(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey),
+                ))
               : Padding(
                   padding: const EdgeInsets.only(top: 20),
                   child: ListView.builder(

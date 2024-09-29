@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore package
 import 'package:docdial/auth/login_page.dart';
 import 'package:docdial/patient/widget/profile_page_buttons.dart';

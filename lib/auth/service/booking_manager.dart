@@ -8,7 +8,7 @@ class BookingManager {
     print("Background Task Start");
     try {
       final now = DateTime.now();
-      final todayString = DateFormat('d').format(now);
+      DateFormat('d').format(now);
 
       final doctorsSnapshot = await _firestore.collection('Doctors').get();
       print("Doctors fetched: ${doctorsSnapshot.docs.length}");

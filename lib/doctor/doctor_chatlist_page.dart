@@ -71,17 +71,29 @@ class _DoctorChatlistPageState extends State<DoctorChatlistPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Center(
+        title: Padding(
+          padding: const EdgeInsets.only(left: 18, top: 20),
           child: Text(
             'Your Chats',
-            style: GoogleFonts.poppins(fontSize: 22),
+            style: GoogleFonts.montserratAlternates(
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+              fontSize: 24,
+            ),
           ),
         ),
       ),
       body: _isLoading
           ? const CustomCircularLoading()
           : _chatList.isEmpty
-              ? const Center(child: Text('No chats available'))
+              ? Center(
+                  child: Text(
+                  'No chats available',
+                  style: GoogleFonts.montserratAlternates(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey),
+                ))
               : Padding(
                   padding: const EdgeInsets.only(top: 20),
                   child: ListView.builder(

@@ -1,10 +1,15 @@
 // ignore_for_file: library_private_types_in_public_api
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:docdial/doctor/widget/time_container.dart';
+import 'package:docdial/doctor/model/time_info.dart';
+import 'package:docdial/doctor/widget/time_container_vertical.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:popover/popover.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 
 class DoctorAppointmentPage extends StatefulWidget {
   const DoctorAppointmentPage({super.key});
@@ -18,35 +23,210 @@ class _DoctorAppointmentPageState extends State<DoctorAppointmentPage>
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  final DateTime _selectedDate = DateTime.now();
-
   late String _selectedTime = "";
-  late String uid;
-
   List<Map<String, String>> availableTimeSlots = [];
+
+  bool _isButtonEnabled = false;
+
   void _handleTimeSelected(String time) {
     setState(() {
       _selectedTime = time;
+      _isButtonEnabled = time.isNotEmpty;
     });
   }
 
-  Future<DocumentSnapshot> fetchDoctorDetails() async {
-    // Get current user's UID
-    User? user = _auth.currentUser;
-    if (user != null) {
-      uid = _firestore.collection('Doctors').doc(user.uid).get().toString();
-      return await _firestore.collection('Doctors').doc(user.uid).get();
-    } else {
-      throw Exception("No user logged in");
+  @override
+  void initState() {
+    super.initState();
+    _fetchTimeSlots();
+  }
+
+  void _fetchTimeSlots() async {
+    User? currentUser = _auth.currentUser;
+    if (currentUser == null) return;
+    String doctorId = currentUser.uid;
+
+    DateTime now = DateTime.now();
+    String dateKey = DateFormat('d').format(now);
+
+    try {
+      DocumentSnapshot dateDoc = await _firestore
+          .collection('Bookings')
+          .doc(doctorId)
+          .collection('dates')
+          .doc(dateKey)
+          .get();
+
+      if (dateDoc.exists) {
+        Map<String, dynamic>? slots = dateDoc.data() as Map<String, dynamic>?;
+
+        if (slots != null) {
+          availableTimeSlots.clear();
+
+          List<Map<String, dynamic>> timeSlotsList = [];
+
+          slots.forEach((timeString, status) {
+            if (timeString != 'openingTime' && timeString != 'closingTime') {
+              DateTime? parsedTime = _parseTimeForSelectedDate(timeString);
+
+              if (parsedTime != null) {
+                if (parsedTime.isAfter(now)) {
+                  timeSlotsList.add({
+                    'time': timeString,
+                    'status': status ?? 'Empty',
+                    'parsedTime': parsedTime,
+                  });
+                }
+              }
+            }
+          });
+
+          timeSlotsList
+              .sort((a, b) => a['parsedTime'].compareTo(b['parsedTime']));
+
+          availableTimeSlots.addAll(timeSlotsList.map((e) => {
+                'time': e['time'],
+                'status': e['status'],
+              }));
+
+          setState(() {});
+        }
+      }
+    } catch (e) {
+      print("Error fetching time slots: $e");
     }
+  }
+
+  DateTime? _parseTimeForSelectedDate(String timeString) {
+    try {
+      DateTime timePart = DateFormat('h:mm a').parse(timeString, true);
+      DateTime now = DateTime.now();
+      return DateTime(
+        now.year,
+        now.month,
+        now.day,
+        timePart.hour,
+        timePart.minute,
+      );
+    } catch (e) {
+      print("Error parsing time: $e");
+      return null;
+    }
+  }
+
+  Future<void> _bookTimeSlot() async {
+    User? currentUser = _auth.currentUser;
+    if (currentUser == null || _selectedTime.isEmpty) return;
+    String doctorId = currentUser.uid;
+
+    DateTime now = DateTime.now();
+    String dateKey = DateFormat('d').format(now);
+
+    try {
+      await _firestore
+          .collection('Bookings')
+          .doc(doctorId)
+          .collection('dates')
+          .doc(dateKey)
+          .update({
+        _selectedTime: 'Booked',
+      });
+
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.success,
+        confirmBtnColor: Colors.green,
+        text: formatTimeSlot(_selectedTime),
+      );
+
+      setState(() {
+        _selectedTime = "";
+        _isButtonEnabled = false;
+      });
+
+      _fetchTimeSlots();
+    } catch (e) {
+      print("Error updating time slot: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error booking time slot: $e')),
+      );
+    }
+  }
+
+  Future<void> _bookAllTimeSlotsForToday() async {
+    // Get current doctor's UID
+    User? currentUser = _auth.currentUser;
+    if (currentUser == null) return;
+    String doctorId = currentUser.uid;
+
+    // Get today's date in 'd' format (e.g., '29')
+    DateTime now = DateTime.now();
+    String dateKey = DateFormat('d').format(now);
+
+    try {
+      // Fetch the document for today's date
+      DocumentSnapshot dateDoc = await _firestore
+          .collection('Bookings')
+          .doc(doctorId)
+          .collection('dates')
+          .doc(dateKey)
+          .get();
+
+      if (dateDoc.exists) {
+        Map<String, dynamic>? slots = dateDoc.data() as Map<String, dynamic>?;
+
+        if (slots != null) {
+          // Prepare the map to update all time slots to "Booked"
+          Map<String, dynamic> updatedSlots = {};
+
+          // Iterate over all slots and change their status to "Booked"
+          slots.forEach((timeString, status) {
+            if (timeString != 'openingTime' && timeString != 'closingTime') {
+              updatedSlots[timeString] = 'Booked';
+            }
+          });
+
+          // Update Firestore document with all time slots booked
+          await _firestore
+              .collection('Bookings')
+              .doc(doctorId)
+              .collection('dates')
+              .doc(dateKey)
+              .update(updatedSlots);
+        }
+      }
+    } catch (e) {
+      print("Error updating time slots: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error booking all time slots: $e')),
+      );
+    }
+  }
+
+  String formatTimeSlot(String selectedTime) {
+    final timeParts = selectedTime.split(' ');
+    final time = timeParts[0].split(':');
+    final hour = int.parse(time[0]);
+    final minute = int.parse(time[1]);
+
+    int nextHour = hour;
+    int nextMinute = minute + 30;
+
+    if (nextMinute >= 60) {
+      nextMinute = 0;
+      nextHour = (nextHour + 1) % 12;
+    }
+
+    final formattedNextTime =
+        '${nextHour.toString().padLeft(2, '0')}:${nextMinute.toString().padLeft(2, '0')} ${timeParts[1]}';
+
+    return 'The Time Slot of $selectedTime to $formattedNextTime has been booked successfully for your Offline Appointment!';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.white,
       appBar: AppBar(
-        // backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
         title: Padding(
           padding: const EdgeInsets.only(left: 18, top: 20),
@@ -64,7 +244,42 @@ class _DoctorAppointmentPageState extends State<DoctorAppointmentPage>
         child: Center(
           child: Column(
             children: [
-              const SizedBox(height: 50),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                child: Row(
+                  children: [
+                    Text(
+                      "Your Time Slots for Today",
+                      style: GoogleFonts.nunitoSans(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const Spacer(),
+                    Builder(
+                      builder: (context) {
+                        return GestureDetector(
+                          onTap: () => showPopover(
+                              context: context,
+                              bodyBuilder: (context) => const TimeInfo(),
+                              direction: PopoverDirection.left,
+                              width: 230,
+                              height: 190,
+                              arrowWidth: 25,
+                              arrowHeight: 12),
+                          child: const Icon(
+                            Iconsax.info_circle,
+                            color: Color(0xFF8391A1),
+                            size: 20,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
               availableTimeSlots.isEmpty
                   ? Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -78,14 +293,14 @@ class _DoctorAppointmentPageState extends State<DoctorAppointmentPage>
                       ),
                     )
                   : SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
+                      scrollDirection: Axis.vertical,
                       physics: const BouncingScrollPhysics(),
-                      child: Row(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(width: 30),
                           for (var slot in availableTimeSlots)
-                            TimeContainer(
+                            TimeContainerVertical(
                               time: slot['time'] ?? 'N/A',
                               status: slot['status'] ?? 'Empty',
                               isSelected: _selectedTime == (slot['time'] ?? ''),
@@ -96,103 +311,86 @@ class _DoctorAppointmentPageState extends State<DoctorAppointmentPage>
                         ],
                       ),
                     ),
+              const Spacer(), // Push the button to the bottom
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: InkWell(
+                  onTap: _isButtonEnabled ? _bookTimeSlot : null,
+                  child: Container(
+                    width: double.infinity,
+                    height: 50,
+                    decoration: BoxDecoration(
+                        color: _isButtonEnabled
+                            ? const Color(0xFF40B44F)
+                            : Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(8)),
+                    child: Center(
+                      child: Text(
+                        'BOOK FOR OFFLINE',
+                        style: GoogleFonts.montserrat(
+                            fontSize: 15,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: InkWell(
+                  onTap: () {
+                    QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.confirm,
+                      text:
+                          'Once you click \"YES\", no patients will be able to book online appointments for today. This decision cannot be reverted. Please confirm your action.',
+                      confirmBtnText: 'Yes',
+                      cancelBtnText: 'No',
+                      confirmBtnColor: const Color(0xFF40B44F),
+                      onCancelBtnTap: () => Navigator.of(context).pop(),
+                      onConfirmBtnTap: () async {
+                        Navigator.of(context).pop();
+                        await _bookAllTimeSlotsForToday();
+
+                        await Future.delayed(const Duration(seconds: 1));
+                        QuickAlert.show(
+                          context: context,
+                          type: QuickAlertType.success,
+                          confirmBtnColor: Colors.green,
+                          text:
+                              "All time slots have been marked as booked, and no patients can schedule appointments today. Enjoy your leave! This will not affect your statistics in any way.",
+                        );
+
+                        _fetchTimeSlots();
+                      },
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: 50,
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                            color: const Color(0xFF40B44F), width: 1.5),
+                        borderRadius: BorderRadius.circular(8)),
+                    child: Center(
+                      child: Text(
+                        'MARK LEAVE FOR TODAY',
+                        style: GoogleFonts.montserrat(
+                            fontSize: 15,
+                            color: const Color(0xFF40B44F),
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
             ],
           ),
-
-          // Display message if no slots available, otherwise show time slots
         ),
       ),
     );
-  }
-
-  void _fetchTimeSlots() async {
-    String dateKey = DateFormat('d').format(_selectedDate);
-    String doctorId = uid;
-
-    try {
-      DocumentSnapshot dateDoc = await _firestore
-          .collection('Bookings')
-          .doc(doctorId)
-          .collection('dates')
-          .doc(dateKey)
-          .get();
-
-      if (dateDoc.exists) {
-        Map<String, dynamic>? slots = dateDoc.data() as Map<String, dynamic>?;
-
-        if (slots != null) {
-          // Clear previous slots
-          availableTimeSlots.clear();
-
-          // Get current date and time
-          DateTime now = DateTime.now();
-
-          List<Map<String, dynamic>> timeSlotsList = [];
-
-          // Iterate over all the time slots
-          slots.forEach((timeString, status) {
-            if (timeString != 'openingTime' && timeString != 'closingTime') {
-              // Parse time with selected date to get full DateTime object
-              DateTime? parsedTime = _parseTimeForSelectedDate(timeString);
-
-              if (parsedTime != null) {
-                if (_selectedDate.day == now.day &&
-                    _selectedDate.month == now.month &&
-                    _selectedDate.year == now.year) {
-                  // Only show future times for today
-                  if (parsedTime.isAfter(now)) {
-                    timeSlotsList.add({
-                      'time': timeString,
-                      'status': status ?? 'Empty',
-                      'parsedTime': parsedTime,
-                    });
-                  }
-                } else {
-                  // Add all time slots for future dates
-                  timeSlotsList.add({
-                    'time': timeString,
-                    'status': status ?? 'Empty',
-                    'parsedTime': parsedTime,
-                  });
-                }
-              }
-            }
-          });
-
-          // Sort by time
-          timeSlotsList
-              .sort((a, b) => a['parsedTime'].compareTo(b['parsedTime']));
-
-          availableTimeSlots.addAll(timeSlotsList.map((e) => {
-                'time': e['time'],
-                'status': e['status'],
-              }));
-
-          setState(() {});
-        }
-      }
-    } catch (e) {
-      print("Error fetching time slots: $e");
-    }
-  }
-
-// Helper function to parse time for the selected date
-  DateTime? _parseTimeForSelectedDate(String timeString) {
-    try {
-      // Parse only the time part from the time string
-      DateTime timePart = DateFormat('h:mm a').parse(timeString, true);
-
-      // Combine it with the selected date
-      return DateTime(
-        _selectedDate.year,
-        _selectedDate.month,
-        _selectedDate.day,
-        timePart.hour,
-        timePart.minute,
-      );
-    } catch (e) {
-      print("Error parsing time: $e");
-      return null;
-    }
   }
 }
