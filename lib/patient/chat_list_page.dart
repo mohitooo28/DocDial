@@ -124,7 +124,7 @@ class _ChatListPageState extends State<ChatListPage> {
                                     padding: const EdgeInsets.only(
                                         left: 16.0, right: 20.0),
                                     child: Text(
-                                      'Dr. ${doctor.firstName} ${doctor.lastName}',
+                                      '${doctor.firstName} ${doctor.lastName}',
                                       style: GoogleFonts.nunitoSans(
                                           fontSize: 17,
                                           fontWeight: FontWeight.w600),
