@@ -38,7 +38,7 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
   DateTime? _selectedDate;
   late String _selectedTime = "";
   double rating = 0.0;
-  bool _hasText = false; 
+  bool _hasText = false;
   var maxLength = 70;
   var textLength = 0;
 
@@ -667,17 +667,24 @@ class _DoctorDetailPageState extends State<DoctorDetailPage> {
         'review': "None",
       }).then((_) {
         // Update the time slot status to "Booked"
+        String day = DateFormat('d').format(_selectedDate!);
         _firestore
             .collection('Bookings')
-            .doc(receiverId)
+            .doc(receiverId) // receiverId is doctor UID
             .collection('dates')
             .doc(day)
-            .update({time: 'Pending'}).then((_) {
+            .update({time: 'Pending'}) // time is the selected time slot
+            .then((_) {
+          print("Time slot updated successfully.");
+        }).catchError((error) {
+          print("Error updating time slot: $error");
+        }).then((_) {
           setState(() {
             _selectedDate = null; // Reset selection
             _selectedTime = "";
             _descriptionController.clear();
           });
+          print("Appointment successfully booked.");
           QuickAlert.show(
             context: context,
             type: QuickAlertType.success,
