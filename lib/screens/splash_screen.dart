@@ -1,3 +1,4 @@
+import 'package:docdial/auth/service/booking_manager.dart';
 import 'package:docdial/screens/global.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
@@ -19,6 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     _checkAuthStatus();
+    BookingManager().backgroundTask();
   }
 
   Future<void> _checkAuthStatus() async {

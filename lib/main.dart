@@ -2,12 +2,9 @@ import 'package:docdial/auth/service/booking_manager.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:docdial/screens/splash_screen.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await Future.delayed(const Duration(seconds: 1));
-  await BookingManager().backgroundTask();
   runApp(MyApp());
 }
 

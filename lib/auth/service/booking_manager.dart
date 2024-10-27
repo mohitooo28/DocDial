@@ -7,94 +7,105 @@ class BookingManager {
   Future<void> backgroundTask() async {
     print("Background Task Start");
     try {
-      final now = DateTime.now();
-      DateFormat('d').format(now);
-
+      final DateTime today = DateTime.now();
       final doctorsSnapshot = await _firestore.collection('Doctors').get();
-      print("Doctors fetched: ${doctorsSnapshot.docs.length}");
 
-      // Run the cleanup and creation in parallel for all doctors
-      await Future.wait(doctorsSnapshot.docs.map((doctorDoc) {
+      // Process each doctor's booking records
+      await Future.wait(doctorsSnapshot.docs.map((doctorDoc) async {
         final doctorId = doctorDoc.id;
-        return _cleanupOldDatesAndAddNew(doctorId, now);
+        await _manageDoctorBookings(doctorId, today, doctorDoc);
       }));
     } catch (e) {
       print("Error in backgroundTask: $e");
     }
   }
 
-  Future<void> _cleanupOldDatesAndAddNew(
-      String doctorId, DateTime today) async {
-    print("Clean Old Dates Function");
+  Future<void> _manageDoctorBookings(
+      String doctorId, DateTime today, DocumentSnapshot doctorDoc) async {
+    final CollectionReference dateCollection =
+        _firestore.collection('Bookings').doc(doctorId).collection('dates');
 
-    // Use DateTime to handle transitions across months and years
-    DateTime yesterday = today.subtract(const Duration(days: 1));
-    DateTime newDate = today.add(const Duration(days: 2));
+    // Fetch all existing date documents for this doctor
+    final existingDatesSnapshot = await dateCollection.get();
 
-    WriteBatch batch = _firestore.batch();
+    // Format dates to compare
+    final DateFormat dateFormat = DateFormat('d');
+    final int todayInt = int.parse(dateFormat.format(today));
+    final int tomorrowInt =
+        int.parse(dateFormat.format(today.add(Duration(days: 1))));
+    final int dayAfterTomorrowInt =
+        int.parse(dateFormat.format(today.add(Duration(days: 2))));
 
-    // Delete yesterday's document
-    String yesterdayString =
-        DateFormat('d').format(yesterday); // Handles month transition
-    DocumentReference yesterdayDoc = _firestore
-        .collection('Bookings')
-        .doc(doctorId)
-        .collection('dates')
-        .doc(yesterdayString);
+    // Separate batch operations for safe handling
+    WriteBatch deleteBatch = _firestore.batch();
+    WriteBatch createBatch = _firestore.batch();
 
-    batch.delete(yesterdayDoc);
+    // Process each date document
+    for (var dateDoc in existingDatesSnapshot.docs) {
+      final int dateInt = int.tryParse(dateDoc.id) ?? 0;
 
-    // Create a new date for the day after tomorrow if it doesn't exist
-    String newDateString =
-        DateFormat('d').format(newDate); // Handles month transition
-    DocumentReference newDateDoc = _firestore
-        .collection('Bookings')
-        .doc(doctorId)
-        .collection('dates')
-        .doc(newDateString);
-
-    DocumentSnapshot todayDoc = await _firestore
-        .collection('Bookings')
-        .doc(doctorId)
-        .collection('dates')
-        .doc(DateFormat('d').format(today))
-        .get();
-
-    if (!todayDoc.exists || todayDoc.data() == null) {
-      print("No document found for today.");
-      return;
+      // Delete documents with dates before today
+      if (dateInt < todayInt) {
+        deleteBatch.delete(dateDoc.reference);
+      }
     }
 
-    Map<String, dynamic> todayData = todayDoc.data() as Map<String, dynamic>;
-    String openingTime = todayData['openingTime'];
-    String closingTime = todayData['closingTime'];
+    // Commit deletion of past dates
+    await deleteBatch.commit();
 
-    batch.set(newDateDoc, _createTimeSlotsMap(openingTime, closingTime));
+    // Get the opening and closing times from the Doctor's profile
+    final String openingTime = doctorDoc.get('openingTime');
+    final String closingTime = doctorDoc.get('closingTime');
 
-    // Commit the batch operation
-    await batch.commit();
+    // Create documents for today, tomorrow, and the day after tomorrow if missing
+    await _createDateDocIfMissing(dateCollection, todayInt.toString(),
+        createBatch, openingTime, closingTime);
+    await _createDateDocIfMissing(dateCollection, tomorrowInt.toString(),
+        createBatch, openingTime, closingTime);
+    await _createDateDocIfMissing(dateCollection,
+        dayAfterTomorrowInt.toString(), createBatch, openingTime, closingTime);
+
+    // Commit creation of missing dates
+    await createBatch.commit();
+  }
+
+  Future<void> _createDateDocIfMissing(
+    CollectionReference dateCollection,
+    String dateString,
+    WriteBatch batch,
+    String openingTime,
+    String closingTime,
+  ) async {
+    final DocumentReference dateDocRef = dateCollection.doc(dateString);
+
+    // Check if the document for this date already exists
+    final DocumentSnapshot dateDocSnapshot = await dateDocRef.get();
+    if (dateDocSnapshot.exists) return;
+
+    // Create the new document with time slots based on the provided opening and closing times
+    batch.set(dateDocRef, _createTimeSlotsMap(openingTime, closingTime));
   }
 
   Map<String, String> _createTimeSlotsMap(
       String openingTime, String closingTime) {
-    DateFormat format = DateFormat('hh:mm a');
-    DateTime startTime = format.parse(openingTime);
-    DateTime endTime = format.parse(closingTime);
+    final DateFormat timeFormat = DateFormat('hh:mm a');
+    final DateTime startTime = timeFormat.parse(openingTime);
+    final DateTime endTime = timeFormat.parse(closingTime);
 
-    Map<String, String> timeSlotsMap = {};
+    final Map<String, String> timeSlots = {};
     DateTime currentTime = startTime;
 
     while (currentTime.isBefore(endTime) ||
         currentTime.isAtSameMomentAs(endTime)) {
-      String timeSlot = DateFormat('hh:mm a').format(currentTime);
-      timeSlotsMap[timeSlot] = 'Empty';
-      currentTime = currentTime.add(const Duration(minutes: 30));
+      final String timeSlot = timeFormat.format(currentTime);
+      timeSlots[timeSlot] = 'Empty';
+      currentTime = currentTime.add(Duration(minutes: 30));
     }
 
     return {
       'openingTime': openingTime,
       'closingTime': closingTime,
-      ...timeSlotsMap,
+      ...timeSlots,
     };
   }
 }

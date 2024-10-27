@@ -4,7 +4,7 @@ class Booking {
   final String id;
   final String receiver;
   final String sender;
-  final String status;
+  late final String status;
   final String time;
   final String name;
   final String review;
