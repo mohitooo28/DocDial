@@ -245,15 +245,15 @@
 <table>
 <tr>
 <td align="center">
-<img src="https://github.com/user-attachments/assets/a34e49c7-2cc6-43e9-9996-a976a1497d28" alt="Splash Screen" height="440"/>
+<img src="https://github.com/user-attachments/assets/a34e49c7-2cc6-43e9-9996-a976a1497d28" alt="Splash Screen" width="200"/>
 <br><strong>🌟 Splash Screen</strong>
 </td>
 <td align="center">
-<img src="https://github.com/user-attachments/assets/9cf982b1-f6a7-47bf-8f26-484093add5f0" alt="Login" height="440"/>
+<img src="https://github.com/user-attachments/assets/9cf982b1-f6a7-47bf-8f26-484093add5f0" alt="Login" width="200"/>
 <br><strong>🔐 Login Screen</strong>
 </td>
 <td align="center">
-<img src="https://github.com/user-attachments/assets/6c2bae15-a361-4e81-9414-372085931eba" alt="Register" height="440"/>
+<img src="https://github.com/user-attachments/assets/6c2bae15-a361-4e81-9414-372085931eba" alt="Register" width="200"/>
 <br><strong>📝 Registration</strong>
 </td>
 </tr>
@@ -266,37 +266,37 @@
 <table>
 <tr>
 <td align="center">
-<img src="https://github.com/user-attachments/assets/25562625-1d52-47aa-99c5-098fe4396ec8" alt="Patient Home" height="440"/>
+<img src="https://github.com/user-attachments/assets/25562625-1d52-47aa-99c5-098fe4396ec8" alt="Patient Home" width="200"/>
 <br><strong>🏠 Home Screen</strong>
 </td>
 <td align="center">
-<img src="https://github.com/user-attachments/assets/746a2eff-add0-4040-86c1-f297f011b6c4" alt="Doctor Search" height="440"/>
+<img src="https://github.com/user-attachments/assets/746a2eff-add0-4040-86c1-f297f011b6c4" alt="Doctor Search" width="200"/>
 <br><strong>🔍 Doctor Search</strong>
 </td>
 <td align="center">
-<img src="https://github.com/user-attachments/assets/650d656b-4029-40e8-b699-fae03363e4c6" alt="Doctor Profile"height="440"/>
+<img src="https://github.com/user-attachments/assets/650d656b-4029-40e8-b699-fae03363e4c6" alt="Doctor Profile" width="200"/>
 <br><strong>⚕️ Doctor Profile</strong>
 </td>
 <td align="center">
-<img src="https://github.com/user-attachments/assets/e600efbd-7cfe-4a1e-9c09-0609a6e934a0" alt="Upcoming Appointments" height="440"/>
+<img src="https://github.com/user-attachments/assets/e600efbd-7cfe-4a1e-9c09-0609a6e934a0" alt="Upcoming Appointments" width="200"/>
 <br><strong>📅 Book Appointment</strong>
 </td>
 </tr>
 <tr>
 <td align="center">
-<img src="https://github.com/user-attachments/assets/139fa6b0-74b7-4862-9a45-a37aafd55e0e" alt="Completed Appointments" height="440"/>
+<img src="https://github.com/user-attachments/assets/139fa6b0-74b7-4862-9a45-a37aafd55e0e" alt="Completed Appointments" width="200"/>
 <br><strong>📅 Upcoming Appointments</strong>
 </td>
 <td align="center">
-<img src="https://github.com/user-attachments/assets/4d8c3e9f-d8ca-4f45-b195-6189e05fbc40" alt="Review System" height="440"/>
+<img src="https://github.com/user-attachments/assets/4d8c3e9f-d8ca-4f45-b195-6189e05fbc40" alt="Review System" width="200"/>
 <br><strong>⭐ Review & Rating</strong>
 </td>
 <td align="center">
-<img src="https://github.com/user-attachments/assets/3e05e76a-b14d-45cf-9f96-2d0ab90eb5c9" alt="Chat List" height="440"/>
+<img src="https://github.com/user-attachments/assets/3e05e76a-b14d-45cf-9f96-2d0ab90eb5c9" alt="Chat List" width="200"/>
 <br><strong>👤 Chat List</strong>
 </td>
 <td align="center">
-<img src="https://github.com/user-attachments/assets/7e258fe4-a78b-41b6-a4d4-d46f9bd9875e" alt="Patient Profile" height="440"/>
+<img src="https://github.com/user-attachments/assets/7e258fe4-a78b-41b6-a4d4-d46f9bd9875e" alt="Patient Profile" width="200"/>
 <br><strong>💬 Chats</strong>
 </td>
 </tr>
@@ -309,15 +309,15 @@
 <table>
 <tr>
 <td align="center">
-<img src="https://github.com/user-attachments/assets/0f1dac36-8170-465a-a8c2-4f3861dfeb87" alt="Doctor Home" height="440"/>
+<img src="https://github.com/user-attachments/assets/0f1dac36-8170-465a-a8c2-4f3861dfeb87" alt="Doctor Home" width="200"/>
 <br><strong>🏥 Doctor Dashboard</strong>
 </td>
 <td align="center">
-<img src="https://github.com/user-attachments/assets/7e725213-5dd6-4ece-9ed5-e84182eeefe0" alt="Appointment Management" height="440"/>
+<img src="https://github.com/user-attachments/assets/7e725213-5dd6-4ece-9ed5-e84182eeefe0" alt="Appointment Management" width="200"/>
 <br><strong>📋 Appointment Management</strong>
 </td>
 <td align="center">
-<img src="https://github.com/user-attachments/assets/ed91975d-a689-4394-8128-45383f6c2257" alt="Doctor Profile" height="440"/>
+<img src="https://github.com/user-attachments/assets/ed91975d-a689-4394-8128-45383f6c2257" alt="Doctor Profile" width="200"/>
 <br><strong>👤 Doctor Profile</strong>
 </td>
 </tr>
